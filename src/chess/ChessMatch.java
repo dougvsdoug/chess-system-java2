@@ -35,12 +35,20 @@ public class ChessMatch {
 		return mat;
 	}
 	
+	private void placeNewPiece( char column, int row, ChessPiece piece ) {// recebe uma peça, uma linha e uma
+		//coluna(char) em coordenadas de xadrez e nao de matriz, então ele coloca a peça na posição
+		//note que o método precisa converter a posição de xadrez(ChessPosition) para a posição de matriz
+		//para isso ele chama o toPosition
+		
+		board.placePiece(piece, new ChessPosition(column, row).toPosition() );
+	}
+	
 	private void initialSetup() {
 		// esse método inicia a partida de xadrez, colocando as peças no tabuleiro
 		
-		board.placePiece(new Rook(board, Color.WHITE), new Position(2, 1));
-		board.placePiece(new King(board, Color.BLACK), new Position(0, 4));
-		board.placePiece(new King(board, Color.WHITE), new Position(7, 4));
+		placeNewPiece( 'b', 6, new Rook(board, Color.WHITE));
+		placeNewPiece( 'e', 8, new King(board, Color.BLACK));
+		placeNewPiece( 'e', 1, new King(board, Color.WHITE));
 	}
 	
 }
