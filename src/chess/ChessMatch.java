@@ -44,6 +44,7 @@ public class ChessMatch {
 		// de matriz )
 		Position target = targetPosition.toPosition();
 		validateSourcePosition(source);// valida a posição de origem, se essa posição não existir lança uma exceção
+		// acho q seria melhor colocar o validate antes de receber o targetPosition
 		Piece capturedPiece = makeMove(source, target);// makeMove realiza o realiza o movimento da peça
 		return (ChessPiece)capturedPiece;	
 	}
@@ -61,11 +62,19 @@ public class ChessMatch {
 	}
 	
 	private void validateSourcePosition( Position position ) {// valida a posição de origem, se essa posição não existir lança uma exceção
+		
 		if( !board.thereIsAPiece(position) ) {
 			throw new ChessException("There is no piece on source position");
 			// note q como ChessException é uma subclasse de BoardException, quando captura uma ChessException
 			// também captura uma possível BoardException
 		}
+		
+		if( !board.piece(position).isThereAnyPossibleMove() ) { // testa se existe algum movimento possível para
+			//a peça, ou seja se ela está presa. O método piece() retorna uma peça, é como se fosse um
+			// getPiece()
+			throw new ChessException("There is no possible moves for the chosen piece");
+		}
+		
 	}
 	
 	private void placeNewPiece( char column, int row, ChessPiece piece ) {// recebe uma peça, uma linha e uma

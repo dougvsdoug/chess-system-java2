@@ -42,6 +42,8 @@ public class ChessPosition {
 	
 	protected static ChessPosition fromPosition( Position position ) {// converte uma Position(posição de matriz) para
 		// ChessPosition(posição de xadrez)
+		// Note q a notação na UML para membros estáticos é o sublinhado
+		
 		
 		return new ChessPosition( (char)( 'a' + position.getColumn() ), 8 - position.getRow() ); 
 		
