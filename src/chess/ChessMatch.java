@@ -1,6 +1,7 @@
 package chess;
 
 import boardgame.Board;
+import boardgame.Piece;
 import boardgame.Position;
 import chess.pieces.King;
 import chess.pieces.Rook;
@@ -20,7 +21,7 @@ public class ChessMatch {
 	/*-----------------------------------------------------------------------------------------------------*/
 	
 	public ChessPiece[][] getPiece(){
-		// esse método retorna uma matriz de peças de xadrez correspondentes a essa partida
+		// esse método retorna uma matriz de peças de xadrez (ChessPiece) correspondentes a essa partida
 		//note q o programa (acho q o ChessMatch) só tera acesso ao ChessPiece e nao ao Piece
 		//O programa irá conhecer apenas a camada de xadrez e nao a camada de tabuleiro
 		
@@ -33,6 +34,38 @@ public class ChessMatch {
 		}
 		
 		return mat;
+	}
+	
+	public ChessPiece performChessMove( ChessPosition sourcePosition, ChessPosition targetPosition ) {
+		// move uma peça, tira ela da posição de origem e coloca na posição de destino
+		// se for o caso retorna uma peça capturada( q foi comida)
+		
+		Position source = sourcePosition.toPosition();// estamos convertendo a ChessPosition para Position(posição
+		// de matriz )
+		Position target = targetPosition.toPosition();
+		validateSourcePosition(source);// valida a posição de origem, se essa posição não existir lança uma exceção
+		Piece capturedPiece = makeMove(source, target);// makeMove realiza o realiza o movimento da peça
+		return (ChessPiece)capturedPiece;	
+	}
+	
+	private Piece makeMove( Position source, Position target ) {// makeMove realiza o realiza o movimento da peça
+		
+		Piece p = board.removePiece(source);//remove do tabuleiro a peça na posição de origem
+		Piece capturedPiece = board.removePiece(target);//remove do tabuleiro a peça da posição de destino
+		// note q o removePiece pode retornar null
+		// agora q removemos uma peça da posição de origem e também uma possível peça da posição de destino
+		// vamos colocar a peça na posição de destino
+		// note q a posição de destino deve ser validada antes, esse método só realiza o movimento
+		board.placePiece(p, target);
+		return capturedPiece;
+	}
+	
+	private void validateSourcePosition( Position position ) {// valida a posição de origem, se essa posição não existir lança uma exceção
+		if( !board.thereIsAPiece(position) ) {
+			throw new ChessException("There is no piece on source position");
+			// note q como ChessException é uma subclasse de BoardException, quando captura uma ChessException
+			// também captura uma possível BoardException
+		}
 	}
 	
 	private void placeNewPiece( char column, int row, ChessPiece piece ) {// recebe uma peça, uma linha e uma
