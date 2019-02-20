@@ -25,14 +25,15 @@ public abstract class Piece {
 	
 	/*------------------------------------------------------------------------------------------------------*/
 	
-	public abstract boolean[][] possibleMoves();
+	public abstract boolean[][] possibleMoves();// retorna uma matriz com todos os movimentos possíveis da peça
+	// esse método possui uma implementação para cada peça de xadrez
 	
 	public boolean possibleMove(Position position ) {//recebe uma posição e retorna verdadeiro ou falso se é 
 		//possível mover a peça para essa posição
 		
 		return possibleMoves()[position.getRow()][position.getColumn()];//hook method, é um método q faz um 
 		// gancho com a subclasse. Note q esse método pode ser concreto pq ele está chamando uma possível 
-		// implementação de alguma subclasse concreta da classe Piece (usando o método possibleMove )
+		// implementação de alguma subclasse concreta da classe Piece (usando o método possibleMoves )
 		// existe um padrão de projeto com esse nome q é o template method, vc cria uma implementação 
 		// padrão( no caso o possibleMove) de um método q depende de um método abstrato
 		// o método concreto possibleMove só vai fazer sentido quando existir uma classe concreta q implemetar

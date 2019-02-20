@@ -45,6 +45,7 @@ public class ChessMatch {
 		Position target = targetPosition.toPosition();
 		validateSourcePosition(source);// valida a posição de origem, se essa posição não existir lança uma exceção
 		// acho q seria melhor colocar o validate antes de receber o targetPosition
+		validadeTargetPosition(source, target);
 		Piece capturedPiece = makeMove(source, target);// makeMove realiza o realiza o movimento da peça
 		return (ChessPiece)capturedPiece;	
 	}
@@ -75,6 +76,13 @@ public class ChessMatch {
 			throw new ChessException("There is no possible moves for the chosen piece");
 		}
 		
+	}
+	
+	private void validadeTargetPosition( Position source, Position target ) {// valida a posição de destino
+		
+		if( !board.piece(source).possibleMove(target) ) {
+			throw new ChessException("The chosen piece can´t move to target position");
+		}
 	}
 	
 	private void placeNewPiece( char column, int row, ChessPiece piece ) {// recebe uma peça, uma linha e uma
