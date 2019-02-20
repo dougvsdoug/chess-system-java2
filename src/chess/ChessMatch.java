@@ -9,14 +9,36 @@ import chess.pieces.Rook;
 public class ChessMatch {
 	// essa classe possui as regras do jogo de xadrez
 	
+	private int turn;
+	private Color currentPlayer;
 	private Board board;
 	
 	/*-----------------------------------------------------------------------------------------------------*/
 	
 	public ChessMatch() {
 		board = new Board(8, 8);
+		turn = 1;
+		currentPlayer = Color.WHITE;
 		initialSetup();//note q quando cria a partida já faz o initial setup
 	}
+	
+	/*-----------------------------------------------------------------------------------------------------*/
+	
+	public int getTurn() {
+		return turn;
+	}
+	
+	public Color getCurrentPlayer() {
+		return currentPlayer;
+	}
+	
+	/*public void setTurn( int turn ) {
+		this.turn = turn;
+	}
+	
+	public void setCurrentPlayer( Color currentPlayer) {
+		this.currentPlayer = currentPlayer;
+	}*/
 	
 	/*-----------------------------------------------------------------------------------------------------*/
 	
@@ -57,6 +79,7 @@ public class ChessMatch {
 		// acho q seria melhor colocar o validate antes de receber o targetPosition
 		validateTargetPosition(source, target);
 		Piece capturedPiece = makeMove(source, target);// makeMove realiza o realiza o movimento da peça
+		nextTurn();
 		return (ChessPiece)capturedPiece;	
 	}
 	
@@ -79,13 +102,15 @@ public class ChessMatch {
 			// note q como ChessException é uma subclasse de BoardException, quando captura uma ChessException
 			// também captura uma possível BoardException
 		}
-		
+		if( currentPlayer != ( (ChessPiece)board.piece(position) ).getColor()  ) {//caso o jogador tente jogar
+			// com a peça o adversário, note q foi necessário fazer um downcasting para acessar o .getColor
+			throw new ChessException("The chosen piece is not yours");
+		}
 		if( !board.piece(position).isThereAnyPossibleMove() ) { // testa se existe algum movimento possível para
 			//a peça, ou seja se ela está presa. O método piece() retorna uma peça, é como se fosse um
 			// getPiece()
 			throw new ChessException("There is no possible moves for the chosen piece");
 		}
-		
 	}
 	
 	private void validateTargetPosition( Position source, Position target ) {// valida a posição de destino
@@ -93,6 +118,15 @@ public class ChessMatch {
 		if( !board.piece(source).possibleMove(target) ) {
 			throw new ChessException("The chosen piece can´t move to target position");
 		}
+	}
+	
+	//expressão condicional ternária
+	
+	private void nextTurn() {
+		turn++;
+		currentPlayer = ( currentPlayer == Color.WHITE ) ? Color.BLACK : Color.WHITE;// expressão condicional 
+		// ternária, se currentPlayer == Color.WHITE então CurrentPlayer recebe Color.Black
+		// caso contrário currentPlayer = Color.BLACK
 	}
 	
 	private void placeNewPiece( char column, int row, ChessPiece piece ) {// recebe uma peça, uma linha e uma
