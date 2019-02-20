@@ -20,11 +20,15 @@ public class Program {
 			try {
 
 				UI.clearScreen();
-				UI.printBoard(chessMatch.getPiece());// o getPiece retorna uma matriz de ChessPiece para o UI.printboard
+				UI.printBoard(chessMatch.getPieces());// o getPiece retorna uma matriz de ChessPiece para o UI.printboard
 				// imprimir
 				System.out.println();
 				System.out.println("Source: ");
 				ChessPosition source = UI.readChessPosition(sc);
+				
+				boolean[][] possibleMoves = chessMatch.possibleMoves(source);
+				UI.clearScreen();
+				UI.printBoard(chessMatch.getPieces(), possibleMoves );
 
 				System.out.println();
 				System.out.println("Target: ");

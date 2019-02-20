@@ -35,13 +35,14 @@ public class ChessPosition {
 	
 	/*--------------------------------------------------------------------------------------------------------*/
 	
-	protected Position toPosition() {// converte uma ChessPosition(posição no xadrez) para Position(posição na matriz)
+	protected Position toPosition() {// converte uma ChessPosition(posição no xadrez) para Position(posição na
+		//matriz)
 		
 		return new Position( 8 - row, column -'a' );
 	}
 	
-	protected static ChessPosition fromPosition( Position position ) {// converte uma Position(posição de matriz) para
-		// ChessPosition(posição de xadrez)
+	protected static ChessPosition fromPosition( Position position ) {// converte uma Position(posição de matriz)
+		//para ChessPosition(posição de xadrez)
 		// Note q a notação na UML para membros estáticos é o sublinhado
 		
 		

@@ -64,14 +64,13 @@ public class UI {
 		
 	}
 	
-	public static void printBoard( ChessPiece[][] pieces ) {
-		
-		// esse método imprime o tabuleiro 
+	public static void printBoard( ChessPiece[][] pieces ) {// imprime o tabuleiro sem pintar 
+		// as posições possíveis
 		
 		for( int i = 0; i < pieces.length; i++ ) {
 			System.out.print( (8-i) + " " );
 			for( int j = 0; j < pieces.length; j++ ) {// consideramos q a matriz é quadrada
-				printPiece(pieces[i][j]);
+				printPiece(pieces[i][j], false);// imprime o tabuleiro sem pintar as posições possíveis
 			}
 			System.out.println();
 		}
@@ -80,12 +79,30 @@ public class UI {
 		
 	}
 	
-	private static void printPiece( ChessPiece piece ) {
+	public static void printBoard( ChessPiece[][] pieces, boolean[][] possibleMoves ) {// sobrecarga
+		// imprime o tabuleiro pintando as posições possíveis
+		
+		for( int i = 0; i < pieces.length; i++ ) {
+			System.out.print( (8-i) + " " );
+			for( int j = 0; j < pieces.length; j++ ) {// consideramos q a matriz é quadrada
+				printPiece(pieces[i][j], possibleMoves[i][j] );
+			}
+			System.out.println();
+		}
+		
+		System.out.println("  a b c d e f g h");
+		
+	}
+	
+	private static void printPiece( ChessPiece piece, boolean background ) {
 		//esse método imprime uma única peça
 		
-		if(piece == null ) {
-			
-			System.out.print("-");
+		if( background ) {
+			System.out.print(ANSI_BLUE_BACKGROUND);
+		}
+		
+		if(piece == null ) {	
+			System.out.print("-" + ANSI_RESET);
 			
 		}
 		else {

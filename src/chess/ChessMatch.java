@@ -20,7 +20,7 @@ public class ChessMatch {
 	
 	/*-----------------------------------------------------------------------------------------------------*/
 	
-	public ChessPiece[][] getPiece(){
+	public ChessPiece[][] getPieces(){
 		// esse método retorna uma matriz de peças de xadrez (ChessPiece) correspondentes a essa partida
 		//note q o programa (acho q o ChessMatch) só tera acesso ao ChessPiece e nao ao Piece
 		//O programa irá conhecer apenas a camada de xadrez e nao a camada de tabuleiro
@@ -36,6 +36,16 @@ public class ChessMatch {
 		return mat;
 	}
 	
+	public boolean[][] possibleMoves( ChessPosition sourcePosition ){//retorna uma matriz de movimentos possíveis
+		// a partir de uma posição. Note q diferente do método possibleMoves da classe piece, esse recebe uma 
+		// posição como parâmetro
+		
+		Position position = sourcePosition.toPosition();
+		validateSourcePosition(position);
+		return board.piece(position).possibleMoves();
+		
+	}
+	
 	public ChessPiece performChessMove( ChessPosition sourcePosition, ChessPosition targetPosition ) {
 		// move uma peça, tira ela da posição de origem e coloca na posição de destino
 		// se for o caso retorna uma peça capturada( q foi comida)
@@ -45,7 +55,7 @@ public class ChessMatch {
 		Position target = targetPosition.toPosition();
 		validateSourcePosition(source);// valida a posição de origem, se essa posição não existir lança uma exceção
 		// acho q seria melhor colocar o validate antes de receber o targetPosition
-		validadeTargetPosition(source, target);
+		validateTargetPosition(source, target);
 		Piece capturedPiece = makeMove(source, target);// makeMove realiza o realiza o movimento da peça
 		return (ChessPiece)capturedPiece;	
 	}
@@ -78,7 +88,7 @@ public class ChessMatch {
 		
 	}
 	
-	private void validadeTargetPosition( Position source, Position target ) {// valida a posição de destino
+	private void validateTargetPosition( Position source, Position target ) {// valida a posição de destino
 		
 		if( !board.piece(source).possibleMove(target) ) {
 			throw new ChessException("The chosen piece can´t move to target position");
