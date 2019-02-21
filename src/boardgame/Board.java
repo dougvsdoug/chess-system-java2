@@ -1,5 +1,7 @@
 package boardgame;
 
+import chess.pieces.King;
+
 public class Board {
 	
 	private int rows;
@@ -40,7 +42,7 @@ public class Board {
 		if( !positionExists(row, column)) {//programação defensiva
 			throw new BoardException("Position not on the board");
 		}
-		
+	
 		return pieces[row][column];
 	}
 	
@@ -74,7 +76,7 @@ public class Board {
 		if( piece(position) == null ) {
 			return null;
 		}
-		
+
 		Piece aux = piece(position);
 		aux.position = null;
 		pieces[position.getRow()][position.getColumn()] = null;

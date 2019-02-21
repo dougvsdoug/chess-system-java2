@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import boardgame.Board;
 import boardgame.Piece;
@@ -15,6 +16,7 @@ public class ChessMatch {
 	private int turn;
 	private Color currentPlayer;
 	private Board board;
+	private boolean check;//Obs: boolean pro padrão começa com false
 	
 	private List<Piece> piecesOnTheBoard = new ArrayList<>();
 	private List<Piece> capturedPieces = new ArrayList<>();
@@ -25,6 +27,7 @@ public class ChessMatch {
 		board = new Board(8, 8);
 		turn = 1;
 		currentPlayer = Color.WHITE;
+		/*check = false;// poderia fazer isso só para enfatizar, o check já começa com false por padrão*/
 		initialSetup();//note q quando cria a partida já faz o initial setup
 	}
 	
@@ -36,6 +39,10 @@ public class ChessMatch {
 	
 	public Color getCurrentPlayer() {
 		return currentPlayer;
+	}
+	
+	public boolean getCheck() {
+		return check;
 	}
 	
 	/*public void setTurn( int turn ) {
@@ -85,6 +92,20 @@ public class ChessMatch {
 		// acho q seria melhor colocar o validate antes de receber o targetPosition
 		validateTargetPosition(source, target);
 		Piece capturedPiece = makeMove(source, target);// makeMove realiza o realiza o movimento da peça
+		
+		// testa se o jogador não se colocou em cheque, ou se o jogador continua em cheque
+		if( testCheck( currentPlayer )){// testa se o jogador não se colocou em cheque
+			undoMove(source, target, capturedPiece);// desfaz a jogada
+			throw new ChessException("You can´t put yourself in check");
+			//note q se entrar nesse if o método não executa o nextTurn
+		}
+		
+		
+		// testa se a jogada colocou o oponente em cheque
+		check = testCheck( opponent(currentPlayer) ) == true ? true: false;// testa se a jogada colocou o 
+		// oponente em cheque, caso sim check = true caso nao check = false
+		
+		
 		nextTurn();
 		return (ChessPiece)capturedPiece;	
 	}
@@ -103,8 +124,23 @@ public class ChessMatch {
 			piecesOnTheBoard.remove(capturedPiece);
 			capturedPieces.add(capturedPiece);
 		}
-		
+
 		return capturedPiece;
+		
+	}
+	
+	private void undoMove( Position source, Position target, Piece capturedPiece ) {// desfaz um movimento
+		// q acabou acabou de ser realizado =, é utilizado no caso do rei entrar em cheque
+		
+		Piece p =  board.removePiece(target);
+		board.placePiece(p, source);
+		
+		if( capturedPiece != null ) {
+			board.placePiece(capturedPiece, target);
+			capturedPieces.remove(capturedPiece);
+			piecesOnTheBoard.add(capturedPiece);
+		}
+		
 	}
 	
 	private void validateSourcePosition( Position position ) {// valida a posição de origem, se essa posição não existir lança uma exceção
@@ -137,6 +173,40 @@ public class ChessMatch {
 		currentPlayer = ( currentPlayer == Color.WHITE ) ? Color.BLACK : Color.WHITE;// expressão condicional 
 		// ternária, se currentPlayer == Color.WHITE então CurrentPlayer recebe Color.Black
 		// caso contrário currentPlayer = Color.BLACK
+	}
+	
+	private Color opponent( Color color ) {
+		return ( color == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
+	
+	private ChessPiece king( Color color ) {// localiza e retorna o rei de uma cor
+		List<Piece> list = piecesOnTheBoard.stream().filter( x -> ((ChessPiece)x).getColor() == color )
+				.collect(Collectors.toList() );
+		for( Piece p: list) {//para cada peça p na minha lista list
+			if( p instanceof King) {
+				return (ChessPiece) p;
+			}
+		}
+		throw new IllegalStateException("There is no " + color + "king on the board!!!");// caso o for não
+		// encotre nenhum rei, note q se isso acontecer então o sistema está com
+		// problema. Por isso nem vamos tratar essa exceção
+	}
+	
+	private boolean testCheck(Color color) {//testa se o rei está em cheque
+		Position kingPosition = king(color).getChessPosition().toPosition();
+		List<Piece> opponentPieces = piecesOnTheBoard.stream().filter
+				( x -> ((ChessPiece)x).getColor() == opponent(color) ).collect(Collectors.toList() );
+		// filtra as peças do oponente
+		for( Piece p: opponentPieces ) {// para cada peça p na minha lista opponentPieces
+			boolean mat[][] = p.possibleMoves();
+			if( mat[kingPosition.getRow()][kingPosition.getColumn()] ) {// se na posição do rei a mat for true
+				// então entra no if
+				
+				return true; //O rei está em cheque
+			}
+		}
+		
+		return false;// O rei não está em cheque
 	}
 	
 	private void placeNewPiece( char column, int row, ChessPiece piece ) {// recebe uma peça, uma linha e uma
