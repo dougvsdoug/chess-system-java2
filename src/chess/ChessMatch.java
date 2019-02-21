@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import boardgame.Board;
 import boardgame.Piece;
 import boardgame.Position;
@@ -12,6 +15,9 @@ public class ChessMatch {
 	private int turn;
 	private Color currentPlayer;
 	private Board board;
+	
+	private List<Piece> piecesOnTheBoard = new ArrayList<>();
+	private List<Piece> capturedPieces = new ArrayList<>();
 	
 	/*-----------------------------------------------------------------------------------------------------*/
 	
@@ -92,6 +98,12 @@ public class ChessMatch {
 		// vamos colocar a peça na posição de destino
 		// note q a posição de destino deve ser validada antes, esse método só realiza o movimento
 		board.placePiece(p, target);
+		
+		if( capturedPiece != null ) {
+			piecesOnTheBoard.remove(capturedPiece);
+			capturedPieces.add(capturedPiece);
+		}
+		
 		return capturedPiece;
 	}
 	
@@ -120,8 +132,6 @@ public class ChessMatch {
 		}
 	}
 	
-	//expressão condicional ternária
-	
 	private void nextTurn() {
 		turn++;
 		currentPlayer = ( currentPlayer == Color.WHITE ) ? Color.BLACK : Color.WHITE;// expressão condicional 
@@ -135,6 +145,8 @@ public class ChessMatch {
 		//para isso ele chama o toPosition
 		
 		board.placePiece(piece, new ChessPosition(column, row).toPosition() );
+		piecesOnTheBoard.add(piece);
+		
 	}
 	
 	private void initialSetup() {
