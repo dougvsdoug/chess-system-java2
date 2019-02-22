@@ -9,6 +9,7 @@ public abstract class ChessPiece extends Piece{
 	//Piece pois ChessPiece é uma subclasse de Piece
 	
 	private Color color;
+	private int moveCount;// note q int é iniciado por padrão com zero
 	
 	/*-----------------------------------------------------------------------------------------------------*/
 	
@@ -23,12 +24,24 @@ public abstract class ChessPiece extends Piece{
 		return color;
 	}
 	
+	public int getMoveCount() {
+		return moveCount;
+	}
+	
 	public ChessPosition getChessPosition() {
 		return ChessPosition.fromPosition(position);
 	}
 
 	//tiramos o setColor pq nao queremos q a cor seja alterada
 	/*-----------------------------------------------------------------------------------------------------*/
+	
+	public void increaseMoveCount() {
+		moveCount++;
+	}
+	
+	public void decreaseMoveCount() {
+		moveCount--;
+	}
 	
 	protected boolean isThereOpponentPiece( Position position ) {// verifica se existe uma peça adversária
 		// em uma determinada posição

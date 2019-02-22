@@ -124,7 +124,9 @@ public class ChessMatch {
 	
 	private Piece makeMove( Position source, Position target ) {// makeMove realiza o movimento da peça
 		
-		Piece p = board.removePiece(source);//remove do tabuleiro a peça na posição de origem
+		ChessPiece p = (ChessPiece)board.removePiece(source);//remove do tabuleiro a peça na posição de origem
+		//p foi criado como ChessPiece ao invés de Piece para  poder usar o increaseMovecount
+		p.increaseMoveCount();
 		Piece capturedPiece = board.removePiece(target);//remove do tabuleiro a peça da posição de destino
 		// note q o removePiece pode retornar null
 		// agora q removemos uma peça da posição de origem e também uma possível peça da posição de destino
@@ -144,7 +146,9 @@ public class ChessMatch {
 	private void undoMove( Position source, Position target, Piece capturedPiece ) {// desfaz um movimento
 		// q acabou acabou de ser realizado =, é utilizado no caso do rei entrar em cheque
 		
-		Piece p =  board.removePiece(target);
+		ChessPiece p =  (ChessPiece)board.removePiece(target);
+		//p foi criado como ChessPiece ao invés de Piece para  poder usar o decreaseMovecount
+		p.decreaseMoveCount();
 		board.placePiece(p, source);
 		
 		if( capturedPiece != null ) {
