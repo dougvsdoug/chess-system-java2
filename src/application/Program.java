@@ -16,9 +16,9 @@ public class Program {
 
 		Scanner sc = new Scanner(System.in);
 		ChessMatch chessMatch = new ChessMatch();
-		List<ChessPiece> captured = new ArrayList<>();
+		List<ChessPiece> captured = new ArrayList<>();//lista de peças capturadas (mortas)
 		
-		while (true) {
+		while ( !chessMatch.getCheckMate() ) {// enquanto a partida não estiver com cheque-mate
 			
 			try {
 
@@ -49,5 +49,10 @@ public class Program {
 				sc.nextLine();// aguarda o usuário precionar enter
 			}
 		}
+		//Terminou a partida
+		
+		UI.clearScreen();
+		UI.printMatch(chessMatch, captured);
+		
 	}
 }

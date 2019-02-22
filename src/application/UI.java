@@ -75,10 +75,22 @@ public class UI {
 		printCapturedPieces(captured);
 		System.out.println();
 		System.out.println("Turn: " + chessMatch.getTurn());
-		System.out.println("Waiting player: " + chessMatch.getCurrentPlayer() );
 		
-		if( chessMatch.getCheck() ) {
-			System.out.println(ANSI_RED + "CHECK!!!!!!!" + ANSI_RESET);
+		if( !chessMatch.getCheckMate() ){
+			System.out.println("Waiting player: " + chessMatch.getCurrentPlayer() );	
+			if( chessMatch.getCheck() ) {
+				System.out.println(ANSI_RED + "CHECK!!!!!!!" + ANSI_RESET);
+			}
+		}else{// caso tenha dado checkMate
+		
+			if( chessMatch.getCurrentPlayer() == Color.WHITE ) {
+				System.out.println(ANSI_WHITE + "CHECKMATE" + ANSI_RESET);
+				System.out.println(ANSI_WHITE + "Winner " + chessMatch.getCurrentPlayer() + ANSI_WHITE );
+			}else {
+				System.out.println(ANSI_GREEN + "CHECKMATE" + ANSI_RESET);// note que usamos a cor verde 
+				//para as peças pretas
+				System.out.println(ANSI_GREEN + "Winner " + chessMatch.getCurrentPlayer() + ANSI_WHITE );
+			}
 		}
 	}
 	
@@ -128,8 +140,8 @@ public class UI {
                 System.out.print(ANSI_WHITE + piece + ANSI_RESET);
             }
             else {
-            	// note que usamos a cor amarela para as peças pretas
-                System.out.print(ANSI_YELLOW + piece + ANSI_RESET);
+            	// note que usamos a cor verde para as peças pretas
+                System.out.print(ANSI_GREEN+ piece + ANSI_RESET);
             }
 		}
 		
@@ -147,17 +159,20 @@ public class UI {
 		
 		System.out.println("Captured pieces: ");
 		
-		System.out.print("White: ");
+		//peças brancas
 		System.out.print(ANSI_WHITE);// para garantir q a lista vai ser impressa na cor branca
+		System.out.print("White: ");
 		System.out.println(Arrays.toString(white.toArray()));// isso é uma forma padrão de imprimir um Array 
 		// de valores no java
 		System.out.print(ANSI_RESET);
 		
+		//peças pretas
+		System.out.print(ANSI_GREEN);// para garantir q a lista vai ser impressa na cor branca
 		System.out.print("Black: ");
-		System.out.print(ANSI_YELLOW);// para garantir q a lista vai ser impressa na cor branca
+		// note que usamos a cor verde para as peças pretas
 		System.out.println(Arrays.toString(black.toArray()));// isso é uma forma padrão de imprimir um Array 
 		// de valores no java
-		System.out.print(ANSI_RESET);
+		System.out.print(ANSI_RESET);// note que usamos a cor verde para as peças pretas
 	}
 	
 

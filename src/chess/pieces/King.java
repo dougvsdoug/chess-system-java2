@@ -23,6 +23,7 @@ public class King extends ChessPiece{
 		// piece
 		return p == null || p.getColor() != getColor();// acho q aqui se p == null ele nem testa o p.getcolor
 		// acho q daria NullPointerException
+		// o segundo teste desse return é para testar se apeça é de um oponente
 	}
 	
 	@Override
