@@ -64,8 +64,8 @@ public class ChessMatch {
 	
 	/*-----------------------------------------------------------------------------------------------------*/
 	
-	public ChessPiece[][] getPieces(){
-		// esse método retorna uma matriz de peças de xadrez (ChessPiece) correspondentes a essa partida
+	public ChessPiece[][] getPieces(){// esse método retorna uma matriz de peças de xadrez (ChessPiece) 
+		// correspondentes a essa partida
 		//note q o programa (acho q o ChessMatch) só tera acesso ao ChessPiece e nao ao Piece
 		//O programa irá conhecer apenas a camada de xadrez e nao a camada de tabuleiro
 		
@@ -142,6 +142,35 @@ public class ChessMatch {
 			piecesOnTheBoard.remove(capturedPiece);
 			capturedPieces.add(capturedPiece);
 		}
+		
+		
+		// specialmove castling kingside rook, roque da direita do rei
+		//faço movimento da torre
+		
+		if( p instanceof King && target.getColumn() ==  source.getColumn() + 2) {//se moveu o rei duas casa para
+			// a direita, então foi realizado o kingside castling
+			
+			Position sourceT = new Position(source.getRow(), source.getColumn() + 3 );
+			Position targetT = new Position(source.getRow(), source.getColumn() + 1 );// posição de destino da
+			// torre
+			ChessPiece rook = (ChessPiece) board.removePiece(sourceT);
+			board.placePiece(rook, targetT);
+			rook.increaseMoveCount();
+		}
+				
+		// specialmove castling QueenSide rook, roque da esquerda do rei
+		//faço movimento da torre
+		
+		if( p instanceof King && target.getColumn() ==  source.getColumn() - 2) {//se moveu o rei duas casa para
+			// a esquerda, então foi realizado o QueenSide castling
+			
+			Position sourceT = new Position(source.getRow(), source.getColumn() - 4 );
+			Position targetT = new Position(source.getRow(), source.getColumn() - 1 );// posição de destino da
+			// torre
+			ChessPiece rook = (ChessPiece) board.removePiece(sourceT);
+			board.placePiece(rook, targetT);
+			rook.increaseMoveCount();
+		}
 
 		return capturedPiece;
 		
@@ -149,9 +178,11 @@ public class ChessMatch {
 	
 	private void undoMove( Position source, Position target, Piece capturedPiece ) {// desfaz um movimento
 		// q acabou acabou de ser realizado =, é utilizado no caso do rei entrar em cheque
+		// note q como a peça foi movida agora ela está no target e nao no source
 		
 		ChessPiece p =  (ChessPiece)board.removePiece(target);
 		//p foi criado como ChessPiece ao invés de Piece para  poder usar o decreaseMovecount
+		
 		p.decreaseMoveCount();
 		board.placePiece(p, source);
 		
@@ -160,6 +191,35 @@ public class ChessMatch {
 			capturedPieces.remove(capturedPiece);
 			piecesOnTheBoard.add(capturedPiece);
 		}
+		
+		
+		// specialmove castling kingside rook, roque da direita do rei
+		//faço movimento da torre
+		// note q aqui já foi desfeito o movimento do Rei
+		
+		if( p instanceof King && target.getColumn() ==  source.getColumn() + 2) {//se moveu o rei duas casa para
+			// a direita, então foi realizado o kingside castling
+			
+			Position sourceT = new Position(source.getRow(), source.getColumn() + 3 );
+			Position targetT = new Position(source.getRow(), source.getColumn() + 1 );
+			ChessPiece rook = (ChessPiece) board.removePiece(targetT);// note a mudança
+			board.placePiece(rook, sourceT);// note a mudança
+			rook.decreaseMoveCount();// note a mudança
+		}
+				
+		// specialmove castling QueenSide rook, roque da esquerda do rei
+		//faço movimento da torre
+		
+		if( p instanceof King && target.getColumn() ==  source.getColumn() - 2) {//se moveu o rei duas casa para
+			// a esquerda, então foi realizado o QueenSide castling
+			
+			Position sourceT = new Position(source.getRow(), source.getColumn() - 4 );
+			Position targetT = new Position(source.getRow(), source.getColumn() - 1 );
+			ChessPiece rook = (ChessPiece) board.removePiece(targetT);// note a mudança
+			board.placePiece(rook, sourceT);// note a mudança
+			rook.decreaseMoveCount();// note a mudança
+		}
+
 		
 	}
 	
@@ -284,7 +344,8 @@ public class ChessMatch {
         placeNewPiece('b', 1, new Knight(board, Color.WHITE));
         placeNewPiece('c', 1, new Bishop(board, Color.WHITE));
         placeNewPiece('d', 1, new Queen(board, Color.WHITE));
-        placeNewPiece('e', 1, new King(board, Color.WHITE));
+        placeNewPiece('e', 1, new King(board, Color.WHITE, this));// this faz auto-referência ao próprio objeto 
+        // chessMatch
         placeNewPiece('f', 1, new Bishop(board, Color.WHITE));
         placeNewPiece('g', 1, new Knight(board, Color.WHITE));
         placeNewPiece('h', 1, new Rook(board, Color.WHITE));
@@ -301,7 +362,8 @@ public class ChessMatch {
         placeNewPiece('b', 8, new Knight(board, Color.BLACK));
         placeNewPiece('c', 8, new Bishop(board, Color.BLACK));
         placeNewPiece('d', 8, new Queen(board, Color.BLACK));
-        placeNewPiece('e', 8, new King(board, Color.BLACK));
+        placeNewPiece('e', 8, new King(board, Color.BLACK, this));// this faz auto-referência ao próprio objeto 
+        // chessMatch
         placeNewPiece('f', 8, new Bishop(board, Color.BLACK));
         placeNewPiece('g', 8, new Knight(board, Color.BLACK));
         placeNewPiece('h', 8, new Rook(board, Color.BLACK));

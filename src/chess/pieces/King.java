@@ -2,13 +2,19 @@ package chess.pieces;
 
 import boardgame.Board;
 import boardgame.Position;
+import chess.ChessMatch;
 import chess.ChessPiece;
 import chess.Color;
 
 public class King extends ChessPiece{
-
-	public King( Board board, Color color ) {
+	
+	private ChessMatch chessMatch;
+	
+	/*------------------------------------------------------------------------------------------------------*/
+	
+	public King( Board board, Color color, ChessMatch chessmatch ) {
 		super(board, color);
+		this.chessMatch = chessmatch;
 	}
 	
 	/*------------------------------------------------------------------------------------------------------*/
@@ -24,6 +30,14 @@ public class King extends ChessPiece{
 		return p == null || p.getColor() != getColor();// acho q aqui se p == null ele nem testa o p.getcolor
 		// acho q daria NullPointerException
 		// o segundo teste desse return é para testar se apeça é de um oponente
+	}
+	
+	private boolean testRookCastling(Position position) {// testa se a torre está apta para o Roque
+		// Roque é Castling em inglês
+		
+		ChessPiece p = (ChessPiece) getBoard().piece(position);
+		return p != null && p instanceof Rook && p.getColor() == getColor() && p.getMoveCount() == 0;// acno q
+		// se a p for igual a null ele nem faz os outros testes pq daria um NullPointerException
 	}
 	
 	@Override
@@ -103,6 +117,50 @@ public class King extends ChessPiece{
 		if( getBoard().positionExists(p) && canMove(p) ){
 			mat[p.getRow()][p.getColumn()] = true;
 		}	
+		
+		// # Specialmove castling
+		
+		if( getMoveCount() == 0 && !chessMatch.getCheck() ) {// parece q o rei nao pode ter sido movido para 
+			// poder dar o Roque
+			//OBS: nao sei pq precisa testar se o rei está em cheque acho q essa condição está errada
+			
+			// #Castling kingside rook (Roque para a direita)
+			// é a mesma coisa para as duas cores de jogador
+			
+			Position posT1 = new Position( position.getRow(), position.getColumn() + 3 );// posição da torre da
+			// direita
+			
+			if( testRookCastling(posT1) ) {
+				//vamos testar se as duas casas a direita do rei estão vazias
+				Position p1 = new Position( position.getRow(), position.getColumn() + 1 );
+				Position p2 = new Position( position.getRow(), position.getColumn() + 2 );
+				
+				if( getBoard().piece(p1) == null && getBoard().piece(p2) == null ) {//as posições entre o rei e
+					// a torre estão nulas
+					mat[position.getRow()][position.getColumn() + 2 ] = true;
+				}
+			}
+			
+			
+			// #Castling QueenSide rook (Roque para a esquerda)
+			// é a mesma coisa para as duas cores de jogador
+			
+			Position posT2 = new Position( position.getRow(), position.getColumn() - 4 );// posição da torre da
+			// esquerda
+			
+			if( testRookCastling(posT2) ) {
+				//vamos testar se as três casas a esquerda do rei estão vazias
+				Position p1 = new Position( position.getRow(), position.getColumn() - 1 );
+				Position p2 = new Position( position.getRow(), position.getColumn() - 2 );
+				Position p3 = new Position( position.getRow(), position.getColumn() - 3 );
+				
+				if( getBoard().piece(p1) == null && getBoard().piece(p2) == null && 
+						getBoard().piece(p3)  == null ){//as posições entre o rei e
+					// a torre estão nulas
+					mat[position.getRow()][position.getColumn() - 2 ] = true;
+				}
+			}
+		}
 		
 		return mat;
 	}

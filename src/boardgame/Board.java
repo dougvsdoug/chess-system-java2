@@ -1,7 +1,5 @@
 package boardgame;
 
-import chess.pieces.King;
-
 public class Board {
 	
 	private int rows;
@@ -101,10 +99,6 @@ public class Board {
 		}
 		
 		return piece(position) != null;
-	}
-	
-	
-	
-	
+	}	
 	
 }
