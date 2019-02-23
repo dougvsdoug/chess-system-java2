@@ -18,14 +18,6 @@ public class Pawn extends ChessPiece {
 		return("P");
 	}
 	
-	private boolean canMove( Position position ) {//diz se o rei pode mover para uma determinada posição
-		ChessPiece p = (ChessPiece) getBoard().piece(position);//note q a posição já foi validada pelo método
-		// piece
-		return p == null || p.getColor() != getColor();// acho q aqui se p == null ele nem testa o p.getcolor
-		// acho q daria NullPointerException
-		// o segundo teste desse return é para testar se apeça é de um oponente
-	}
-	
 	@Override
 	public boolean[][] possibleMoves() {// retorna uma matriz com todos os movimentos possíveis da peça
 		//Obs: é obrigatório implementar esse método pq ele é um método herdado q era abstrato
