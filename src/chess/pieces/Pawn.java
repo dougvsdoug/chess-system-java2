@@ -2,13 +2,17 @@ package chess.pieces;
 
 import boardgame.Board;
 import boardgame.Position;
+import chess.ChessMatch;
 import chess.ChessPiece;
 import chess.Color;
 
 public class Pawn extends ChessPiece {
+	
+	private ChessMatch chessMatch;
 
-	public Pawn(Board board, Color color) {
+	public Pawn(Board board, Color color, ChessMatch chessMatch ) {
 		super(board, color);
+		this.chessMatch = chessMatch;
 	}
 	
 	/*----------------------------------------------------------------------------------------------------*/
@@ -68,6 +72,29 @@ public class Pawn extends ChessPiece {
 			}
 			
 			
+			// #special move en passant white; en passant da peça (peão ) branco matando o adversário preto
+			
+			if( position.getRow() == 3 ) {// o peão só pode realizar o enPassant na linha 3, acho q esse if
+				// é desnecessário; na verdade acho q ele serve para nao poder dar enPassant no peao do próprio
+				// current player (matar o próprio peão)
+				
+				//enPassant left
+				Position left = new Position( position.getRow(), position.getColumn() - 1 );
+				if( getBoard().positionExists(left) && isThereOpponentPiece(left) &&
+						getBoard().piece(left) == chessMatch.getEnPassantVunerable() ) {
+					mat[left.getRow() - 1][left.getColumn()] = true;// o peao move para a peça de cima do peao do
+					//adversário q ele captura
+				}
+				
+				//enPassant right
+				Position right = new Position( position.getRow(), position.getColumn() + 1 );
+				if( getBoard().positionExists(right) && isThereOpponentPiece(right) &&
+						getBoard().piece(right) == chessMatch.getEnPassantVunerable() ) {
+					mat[right.getRow() - 1][right.getColumn()] = true;// o peao move para a peça de cima do peao do
+					//adversário q ele captura
+				}
+			}
+			
 		}else {//caso o peão seja preto ele só move para baixo
 			
 			// move 1 casa para baixo
@@ -101,6 +128,44 @@ public class Pawn extends ChessPiece {
 			if( getBoard().positionExists(p) && isThereOpponentPiece(p) ) {//lembrando q o peão  
 				// só pode andar para diagonal se tiver uma peça adversária
 				mat[p.getRow()][p.getColumn()] = true;
+			}
+			
+			
+			// #special move en passant black; en passant da peça (peão ) preto matando o adversário branco
+			
+			if( position.getRow() == 4 ) {// o peão só pode realizar o enPassant na linha 4, acho q esse if
+				// é desnecessário; na verdade acho q ele serve para nao poder dar enPassant no peao do próprio
+				// current player (matar o próprio peão)
+				
+				//enPassant left
+				Position left = new Position( position.getRow(), position.getColumn() - 1 );
+				
+				/*----------------------------------------------*/
+/*				
+				if( chessMatch == null ) {
+					System.out.println("chessMatch vale null");
+				}
+				
+				if(chessMatch.getEnPassantVunerable() == null ) {
+					System.out.println("null");
+				}
+				System.out.println(chessMatch.getEnPassantVunerable());*/
+				
+				/*---------------------------------------------------------*/
+				
+				if( getBoard().positionExists(left) && isThereOpponentPiece(left) &&
+						getBoard().piece(left) == chessMatch.getEnPassantVunerable() ) {
+					mat[left.getRow() + 1][left.getColumn()] = true;// o peao move para a peça de baixo do peao
+					//do adversário q ele captura
+				}
+				
+				//enPassant right
+				Position right = new Position( position.getRow(), position.getColumn() + 1 );
+				if( getBoard().positionExists(right) && isThereOpponentPiece(right) &&
+						getBoard().piece(right) == chessMatch.getEnPassantVunerable() ) {
+					mat[right.getRow() + 1][right.getColumn()] = true;// o peao move para a peça de baixo do peao
+					//do adversário q ele captura
+				}
 			}
 		}
 		

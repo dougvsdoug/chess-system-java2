@@ -22,6 +22,7 @@ public class ChessMatch {
 	private Board board;
 	private boolean check;//Obs: boolean pro padrão começa com false
 	private boolean checkMate;
+	private ChessPiece enPassantVunerable;// por padrão começa com null
 	
 	private List<Piece> piecesOnTheBoard = new ArrayList<>();
 	private List<Piece> capturedPieces = new ArrayList<>();
@@ -61,6 +62,10 @@ public class ChessMatch {
 	public void setCurrentPlayer( Color currentPlayer) {
 		this.currentPlayer = currentPlayer;
 	}*/
+	
+	public ChessPiece getEnPassantVunerable() {
+		return enPassantVunerable;
+	}
 	
 	/*-----------------------------------------------------------------------------------------------------*/
 	
@@ -110,6 +115,7 @@ public class ChessMatch {
 			//note q se entrar nesse if o método não executa o nextTurn
 		}
 		
+		ChessPiece movedPiece = (ChessPiece)board.piece(target);// será utilizado para o enPassant
 		
 		// testa se a jogada colocou o oponente em cheque
 		check = testCheck( opponent(currentPlayer) ) == true ? true: false;// testa se a jogada colocou o 
@@ -122,6 +128,17 @@ public class ChessMatch {
 		}else {
 			nextTurn();// continua o jogo
 		}
+		
+		//note q o peão só fica vunerável ao enPassan depois do nextTurn
+		// #special move enPassant
+		
+		if( movedPiece instanceof Pawn && ( target.getRow() == source.getRow() - 2  || 
+				target.getRow() == source.getRow() + 2 ) ) {// já faz o teste para o peão de ambos os jogadores
+			enPassantVunerable = movedPiece;
+		}else {
+			enPassantVunerable = null;
+		}
+		
 		
 		return (ChessPiece)capturedPiece;	
 	}
@@ -144,7 +161,7 @@ public class ChessMatch {
 		}
 		
 		
-		// specialmove castling kingside rook, roque da direita do rei
+		// #specialmove castling kingside rook, roque da direita do rei
 		//faço movimento da torre
 		
 		if( p instanceof King && target.getColumn() ==  source.getColumn() + 2) {//se moveu o rei duas casa para
@@ -158,7 +175,7 @@ public class ChessMatch {
 			rook.increaseMoveCount();
 		}
 				
-		// specialmove castling QueenSide rook, roque da esquerda do rei
+		// #specialmove castling QueenSide rook, roque da esquerda do rei
 		//faço movimento da torre
 		
 		if( p instanceof King && target.getColumn() ==  source.getColumn() - 2) {//se moveu o rei duas casa para
@@ -170,6 +187,28 @@ public class ChessMatch {
 			ChessPiece rook = (ChessPiece) board.removePiece(sourceT);
 			board.placePiece(rook, targetT);
 			rook.increaseMoveCount();
+		}
+		
+		
+		// #specialMove enPassant
+		
+		if( p instanceof Pawn ) {
+			if( source.getColumn() != target.getColumn() && capturedPiece == null ) {// note q caso o peão tenha
+				// movido na diagonal ele deveria ter comido uma peça então ele realizou o enPassant
+				
+				Position pawnPosition;
+				if( p.getColor() == Color.WHITE ) {//caso seja o peão branco q realiza o enPassant contra um peão
+					// preto
+					pawnPosition = new Position( target.getRow() + 1, target.getColumn() );// posição do peão q será 
+					// capturado
+				}else {//caso seja o peão preto q realiza o enPassant contra um peão branco
+					pawnPosition = new Position( target.getRow() - 1, target.getColumn() );// posição do peão q será 
+					// capturado
+				}
+				capturedPiece = board.removePiece(pawnPosition);
+				capturedPieces.add(capturedPiece);
+				piecesOnTheBoard.remove(capturedPiece);
+			}
 		}
 
 		return capturedPiece;
@@ -219,8 +258,44 @@ public class ChessMatch {
 			board.placePiece(rook, sourceT);// note a mudança
 			rook.decreaseMoveCount();// note a mudança
 		}
-
 		
+		
+		// #specialMove enPassant
+		
+		if( p instanceof Pawn ) {//CUIDADO!!!!!!!!  o enPassant não captura a peça na posição de target
+			// note q o primeiro if deste método terá colocado o peão capturado na posição de target,
+			// precisaremos corrigir isso
+			// portanto teremos de fazer um tratamento especial, ele captura a peça em baixo do target no caso do
+			// enPassant branco (contra o preto) e captura a peça em cima do target no caso do enPassant preto 
+			// (contra o branco)
+			// enPassant branco (contra o preto), o peão preto capturado volta para a linha 3
+			// enPassant preto (contra o branco), o peão branco capturado volta para a linha 4
+			if( source.getColumn() != target.getColumn() && capturedPiece == enPassantVunerable) {// CUIDADO!!!!
+				// o programa pode entrar nesse if caso um peão capture, sem realizar um enPassant, o peão
+				// do oponente. Porém mesmo assim as linhas abaixo vão colocar o peão capturado novamento na
+				// posição correta
+				
+				// note q caso 
+				// o peão tenha movido na diagonal e comido um peão vulnerável ao enPassant então ele PODE (talvez)
+				// ter realizado o enPassant
+				
+				ChessPiece pawn = (ChessPiece)board.removePiece(target);// nessa posição pode ter sido colocado
+				// erroneamente ( caso realmennte tenha ocorrido o enPassant ) o peão capturado
+				Position pawnPosition;
+				if( p.getColor() == Color.WHITE ) {//caso seja o peão branco q realiza o enPassant contra um peão
+					// preto
+					pawnPosition = new Position( 3, target.getColumn() );// note q independente de ter sido
+					// realizado o enPassant o peão capturado volta para a posição correta
+				}else {//caso seja o peão preto q realiza o enPassant contra um peão branco
+					pawnPosition = new Position( 4, target.getColumn() );// posição do peão q será 
+					// capturado
+				}
+				board.placePiece(pawn, pawnPosition);// note q caso não tenha sido realizado o enPassant o 
+				// peão capturado simplesmente volta para a posição de target
+				
+				// a alteração nas listas já foi realizada no primeiro if desse método
+			}
+		}
 	}
 	
 	private void validateSourcePosition( Position position ) {// valida a posição de origem, se essa posição não existir lança uma exceção
@@ -340,6 +415,8 @@ public class ChessMatch {
 	private void initialSetup() {
 		// esse método inicia a partida de xadrez, colocando as peças no tabuleiro
 		
+		//white
+		
         placeNewPiece('a', 1, new Rook(board, Color.WHITE));
         placeNewPiece('b', 1, new Knight(board, Color.WHITE));
         placeNewPiece('c', 1, new Bishop(board, Color.WHITE));
@@ -349,15 +426,17 @@ public class ChessMatch {
         placeNewPiece('f', 1, new Bishop(board, Color.WHITE));
         placeNewPiece('g', 1, new Knight(board, Color.WHITE));
         placeNewPiece('h', 1, new Rook(board, Color.WHITE));
-        placeNewPiece('a', 2, new Pawn(board, Color.WHITE));
-        placeNewPiece('b', 2, new Pawn(board, Color.WHITE));
-        placeNewPiece('c', 2, new Pawn(board, Color.WHITE));
-        placeNewPiece('d', 2, new Pawn(board, Color.WHITE));
-        placeNewPiece('e', 2, new Pawn(board, Color.WHITE));
-        placeNewPiece('f', 2, new Pawn(board, Color.WHITE));
-        placeNewPiece('g', 2, new Pawn(board, Color.WHITE));
-        placeNewPiece('h', 2, new Pawn(board, Color.WHITE));
+        placeNewPiece('a', 2, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('b', 2, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('c', 2, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('d', 5, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('e', 2, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('f', 2, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('g', 2, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('h', 2, new Pawn(board, Color.WHITE, this));
 
+        //black
+        
         placeNewPiece('a', 8, new Rook(board, Color.BLACK));
         placeNewPiece('b', 8, new Knight(board, Color.BLACK));
         placeNewPiece('c', 8, new Bishop(board, Color.BLACK));
@@ -367,14 +446,14 @@ public class ChessMatch {
         placeNewPiece('f', 8, new Bishop(board, Color.BLACK));
         placeNewPiece('g', 8, new Knight(board, Color.BLACK));
         placeNewPiece('h', 8, new Rook(board, Color.BLACK));
-        placeNewPiece('a', 7, new Pawn(board, Color.BLACK));
-        placeNewPiece('b', 7, new Pawn(board, Color.BLACK));
-        placeNewPiece('c', 7, new Pawn(board, Color.BLACK));
-        placeNewPiece('d', 7, new Pawn(board, Color.BLACK));
-        placeNewPiece('e', 7, new Pawn(board, Color.BLACK));
-        placeNewPiece('f', 7, new Pawn(board, Color.BLACK));
-        placeNewPiece('g', 7, new Pawn(board, Color.BLACK));
-        placeNewPiece('h', 7, new Pawn(board, Color.BLACK));
+        placeNewPiece('a', 7, new Pawn(board, Color.BLACK, this));
+        placeNewPiece('b', 7, new Pawn(board, Color.BLACK, this));
+        placeNewPiece('c', 7, new Pawn(board, Color.BLACK, this));
+        placeNewPiece('d', 7, new Pawn(board, Color.BLACK, this));
+        placeNewPiece('e', 7, new Pawn(board, Color.BLACK, this));
+        placeNewPiece('f', 7, new Pawn(board, Color.BLACK, this));
+        placeNewPiece('g', 7, new Pawn(board, Color.BLACK, this));
+        placeNewPiece('h', 7, new Pawn(board, Color.BLACK, this));
 		 
 	}
 	

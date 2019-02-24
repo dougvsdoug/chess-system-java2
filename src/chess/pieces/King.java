@@ -122,7 +122,8 @@ public class King extends ChessPiece{
 		
 		if( getMoveCount() == 0 && !chessMatch.getCheck() ) {// parece q o rei nao pode ter sido movido para 
 			// poder dar o Roque
-			//OBS: nao sei pq precisa testar se o rei está em cheque acho q essa condição está errada
+			// o rei também nao pode realizar o Roque se não estiver em cheque, parece q tem outras condições 
+			// para poder dar o roque mas o professor nao colocou
 			
 			// #Castling kingside rook (Roque para a direita)
 			// é a mesma coisa para as duas cores de jogador
