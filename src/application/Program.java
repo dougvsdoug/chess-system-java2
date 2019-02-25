@@ -1,5 +1,6 @@
 package application;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -41,13 +42,30 @@ public class Program {
 					captured.add(capturedPiece);
 				}
 				
+				if( chessMatch.getPromoted() != null ) {// a jogada promotion está cheia de bugs
+					System.out.println("Enter piece for promotion (B/N/R/Q): ");// acho q aqui pode ter alguns bugs
+					// ao testar as condições de cheque porque o programa vai testar as condições de cheque para
+					// a rainha independente de qual peça o usuário para o peão ser promovido
+					String type = sc.nextLine();
+					type = type.toUpperCase();// para nao dar problema caso o usuário digite uma letra minúscula
+					chessMatch.replacePromotedPiece(type);
+				}
+				
 			} catch (ChessException e) {
 				System.out.println(e.getMessage());
 				sc.nextLine();// aguarda o usuário precionar enter
 			}catch (InputMismatchException e) {
 				System.out.println(e.getMessage());
 				sc.nextLine();// aguarda o usuário precionar enter
+			}catch (IllegalStateException e) {
+				System.out.println(e.getMessage());
+				sc.nextLine();// aguarda o usuário precionar enter
+			}catch (InvalidParameterException e) {
+				System.out.println(e.getMessage());
+				sc.nextLine();// aguarda o usuário precionar enter
 			}
+			
+			//acho q poderia colocar mais catchs, acho q faltou para os erros da specialmove promotion
 		}
 		//Terminou a partida
 		

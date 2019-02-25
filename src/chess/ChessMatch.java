@@ -1,5 +1,6 @@
 package chess;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ public class ChessMatch {
 	private boolean check;//Obs: boolean pro padrão começa com false
 	private boolean checkMate;
 	private ChessPiece enPassantVunerable;// por padrão começa com null
+	private ChessPiece promoted;
 	
 	private List<Piece> piecesOnTheBoard = new ArrayList<>();
 	private List<Piece> capturedPieces = new ArrayList<>();
@@ -67,6 +69,9 @@ public class ChessMatch {
 		return enPassantVunerable;
 	}
 	
+	public ChessPiece getPromoted() {
+		return promoted;
+	}
 	/*-----------------------------------------------------------------------------------------------------*/
 	
 	public ChessPiece[][] getPieces(){// esse método retorna uma matriz de peças de xadrez (ChessPiece) 
@@ -106,7 +111,8 @@ public class ChessMatch {
 		validateSourcePosition(source);// valida a posição de origem, se essa posição não existir lança uma exceção
 		// acho q seria melhor colocar o validate antes de receber o targetPosition
 		validateTargetPosition(source, target);
-		Piece capturedPiece = makeMove(source, target);// makeMove realiza o movimento da peça
+		Piece capturedPiece = makeMove(source, target);// makeMove realiza o movimento da peça e retorna a peça 
+		// capturada
 		
 		// testa se o jogador não se colocou em cheque, ou se o jogador continua em cheque
 		if( testCheck( currentPlayer )){// testa se o jogador não se colocou em cheque
@@ -116,6 +122,25 @@ public class ChessMatch {
 		}
 		
 		ChessPiece movedPiece = (ChessPiece)board.piece(target);// será utilizado para o enPassant
+		
+		
+		// #specialmove promotion
+		// note q devemos fazer o promotion antes de testar se o adversário está em cheque, pois a peça q o peão
+		// se transformar pode mudar a situação de cheque do adversário
+		
+		promoted = null; // para assegurar q estamos fazendo um novo teste, também será usado no programa 
+		// principal
+		
+		if( movedPiece instanceof Pawn ) {
+			if( ( movedPiece.getColor() == Color.WHITE && target.getRow() == 0 ) || 
+					movedPiece.getColor() == Color.BLACK && target.getRow() == 7 ) {
+				 promoted = (ChessPiece)board.piece(target);// para não correr o risco de chamar o método
+				 // replacePromotedPiece com promoted = null
+				 promoted = replacePromotedPiece("Q"); // ("Q") é um macete, colocamos o "Q" como padrão para
+				 // facilitar a programação da interação com o usuário
+				 // será usado pelo programa principal
+			}
+		}
 		
 		// testa se a jogada colocou o oponente em cheque
 		check = testCheck( opponent(currentPlayer) ) == true ? true: false;// testa se a jogada colocou o 
@@ -141,6 +166,36 @@ public class ChessMatch {
 		
 		
 		return (ChessPiece)capturedPiece;	
+	}
+	
+	public ChessPiece replacePromotedPiece( String type ) {// CUIDADO!!!!! a jogada promotion está cheia de bugs
+		// promove um peão a uma torre ou cavalo ou bispo ou 
+		// rainha
+		if( promoted == null ) {// programação defensiva
+			throw new IllegalStateException("There is no piece to be promoted");
+		}
+		
+		if( !type.equals("R") && !type.equals("N") && !type.equals("B") && !type.equals("Q") ) {
+			throw new InvalidParameterException("Invalid type for promotion");
+		}
+		
+		Position pos = promoted.getChessPosition().toPosition();
+		Piece p = board.removePiece(pos);	
+		piecesOnTheBoard.remove(p);
+		
+		ChessPiece newPiece = newPiece(type, promoted.getColor() );
+		board.placePiece(newPiece, pos);// coloca a nova peça na posição da peça promovida
+		piecesOnTheBoard.add(newPiece);
+		
+		return newPiece;
+	}
+	
+	private ChessPiece newPiece( String type, Color color ) {
+		if( type.equals("B")) return new Bishop(board, color);
+		if( type.equals("N")) return new Knight(board, color);
+		if( type.equals("Q")) return new Queen(board, color);
+		return new Rook(board, color); // se não entrar nos outros ifs cai nessa linha, não precisa testar
+		// pois esse caso já foi tratado
 	}
 	
 	private Piece makeMove( Position source, Position target ) {// makeMove realiza o movimento da peça
@@ -421,28 +476,26 @@ public class ChessMatch {
         placeNewPiece('b', 1, new Knight(board, Color.WHITE));
         placeNewPiece('c', 1, new Bishop(board, Color.WHITE));
         placeNewPiece('d', 1, new Queen(board, Color.WHITE));
-        placeNewPiece('e', 1, new King(board, Color.WHITE, this));// this faz auto-referência ao próprio objeto 
-        // chessMatch
+        placeNewPiece('e', 1, new King(board, Color.WHITE, this));// this faz auto-referencia ao próprio objeto
         placeNewPiece('f', 1, new Bishop(board, Color.WHITE));
         placeNewPiece('g', 1, new Knight(board, Color.WHITE));
         placeNewPiece('h', 1, new Rook(board, Color.WHITE));
         placeNewPiece('a', 2, new Pawn(board, Color.WHITE, this));
         placeNewPiece('b', 2, new Pawn(board, Color.WHITE, this));
         placeNewPiece('c', 2, new Pawn(board, Color.WHITE, this));
-        placeNewPiece('d', 5, new Pawn(board, Color.WHITE, this));
+        placeNewPiece('d', 2, new Pawn(board, Color.WHITE, this));
         placeNewPiece('e', 2, new Pawn(board, Color.WHITE, this));
         placeNewPiece('f', 2, new Pawn(board, Color.WHITE, this));
         placeNewPiece('g', 2, new Pawn(board, Color.WHITE, this));
         placeNewPiece('h', 2, new Pawn(board, Color.WHITE, this));
-
-        //black
         
+        // Black
+
         placeNewPiece('a', 8, new Rook(board, Color.BLACK));
         placeNewPiece('b', 8, new Knight(board, Color.BLACK));
         placeNewPiece('c', 8, new Bishop(board, Color.BLACK));
         placeNewPiece('d', 8, new Queen(board, Color.BLACK));
-        placeNewPiece('e', 8, new King(board, Color.BLACK, this));// this faz auto-referência ao próprio objeto 
-        // chessMatch
+        placeNewPiece('e', 8, new King(board, Color.BLACK, this));// this faz auto-referencia ao próprio objeto
         placeNewPiece('f', 8, new Bishop(board, Color.BLACK));
         placeNewPiece('g', 8, new Knight(board, Color.BLACK));
         placeNewPiece('h', 8, new Rook(board, Color.BLACK));
